@@ -1,79 +1,81 @@
 #include "main.h"
 
 /**
- * get_option - Get the function based on the input value
- * @format: string that contains what we will print
+ * check_for_specifiers - checks if there is a valid format specifier
+ * @format: possible format specifier
  *
- * Return: corresponding pointer to function or NULL
+ * Return: pointer to valid function or NULL
  */
-int (*get_option(const char *format))(va_list)
+static int (*check_for_specifiers(const char *format))(va_list)
 {
 	unsigned int i;
-	print_f options[] = {
+	print_t p[] = {
 		{"c", print_c},
 		{"s", print_s},
-		{"b", print_binary},
-		{"d", print_d},
 		{"i", print_i},
+		{"d", print_d},
+		{"u", print_u},
+		{"b", print_b},
+		{"o", print_o},
+		{"x", print_x},
+		{"X", print_X},
+		{"p", print_p},
+		{"S", print_S},
+		{"r", print_r},
+		{"R", print_R},
 		{NULL, NULL}
 	};
-	for (i = 0; options[i].c != NULL; i++)
-		if (*options[i].c == *format)
+
+	for (i = 0; p[i].t != NULL; i++)
+	{
+		if (*(p[i].t) == *format)
+		{
 			break;
-	return (options[i].f);
+		}
+	}
+	return (p[i].f);
 }
 
 /**
- * _prinf - print anything
- * @format: string that contains what we will print
+ * _printf - prints anything
+ * @format: list of argument types passed to the function
  *
- * Return: length
+ * Return: number of characters printed
  */
 int _printf(const char *format, ...)
 {
-	unsigned int i;
-	int length = 0;
-	va_list arg;
+	unsigned int i = 0, count = 0;
+	va_list valist;
 	int (*f)(va_list);
 
-	if (!format || (format[0] == '%' && !format[1]))
+	if (format == NULL)
 		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
-	va_start(arg, format);
-	for (i = 0; format[i]; i++)
+	va_start(valist, format);
+	while (format[i])
 	{
-		if (!format[i])
-			return (length);
-		if (format[i] == '%' && format[i + 1] == '%')
+		for (; format[i] != '%' && format[i]; i++)
 		{
 			_putchar(format[i]);
-			i++;
-			length++;
+			count++;
+		}
+		if (!format[i])
+			return (count);
+		f = check_for_specifiers(&format[i + 1]);
+		if (f != NULL)
+		{
+			count += f(valist);
+			i += 2;
 			continue;
 		}
-		if (format[i] == '%' && format[i + 1] != '%')
-		{
-			f = get_option(&format[i + 1]);
-			if (f != NULL)
-			{
-				length += f(arg);
-				i++;
-				continue;
-			}
-		}
-		if (format[i] == '%' && format[i + 1] == 'K')
-		{
-			putchar('%');
-			putchar('K');
-			i++;
-		}
+		if (!format[i + 1])
+			return (-1);
+		_putchar(format[i]);
+		count++;
+		if (format[i + 1] == '%')
+			i += 2;
 		else
-		{
-			_putchar(format[i]);
-			length++;
-		}
+			i++;
 	}
-	va_end(arg);
-	return (length);
+	va_end(valist);
+	return (count);
 }
