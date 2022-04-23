@@ -48,5 +48,5 @@ All files were linted for syntax and style with [Betty]
 
 
 ### Authors
-* **Joel Oduyemi** - @Joelayo
-* **Shittu Sulaimon** - @sadebare
+* **Joel Oduyemi** - @Joelayo.
+* **Shittu Sulaimon** - @sadebare.
